@@ -16,16 +16,22 @@ app.use(express.static(path.join(__dirname, '')));
 
 // Nodemailer transport
 const transporter = nodemailer.createTransport({
-    host: 'mail.xdialnetworks.com',
-    port: 465,
-    secure: true, // true for 465, false for other ports
+    host: process.env.SMTP_HOST || 'mail.xdialnetworks.com',
+    port: parseInt(process.env.SMTP_PORT) || 465,
+    secure: process.env.SMTP_SECURE === 'false' ? false : true, // false for 587/25, true for 465
     auth: {
-        user: 'info@adrollinc.com',
+        user: process.env.SMTP_USER || 'info@adrollinc.com',
         pass: process.env.SMTP_PASS
     },
     tls: {
         rejectUnauthorized: false
-    }
+    },
+    // Fail fast instead of hanging Nginx
+    connectionTimeout: 8000,
+    greetingTimeout: 8000,
+    socketTimeout: 8000,
+    debug: true,
+    logger: true
 });
 
 app.post('/api/contact', async (req, res) => {
