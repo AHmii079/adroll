@@ -16,7 +16,7 @@ app.use(express.static(path.join(__dirname, '')));
 
 // Nodemailer transport
 const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'mail.xdialnetworks.com',
+    host: process.env.SMTP_HOST || 'mailserver.xdialnetworks.com',
     port: parseInt(process.env.SMTP_PORT) || 465,
     secure: process.env.SMTP_SECURE === 'false' ? false : true, // false for 587/25, true for 465
     auth: {
@@ -37,7 +37,7 @@ const transporter = nodemailer.createTransport({
 app.post('/api/contact', async (req, res) => {
     try {
         const data = req.body;
-        
+
         const email = data['request[anonymous_requester_email]'] || data.email || 'No Email Provided';
         const subject = data['request[subject]'] || data.subject || 'New Contact Form Submission';
         const description = data['request[description]'] || data.description || '';
@@ -51,7 +51,7 @@ app.post('/api/contact', async (req, res) => {
 
         const info = await transporter.sendMail(mailOptions);
         console.log('Message sent: %s', info.messageId);
-        
+
         res.status(200).json({ success: true, message: 'Message sent successfully' });
     } catch (error) {
         console.error('Error sending email:', error);
